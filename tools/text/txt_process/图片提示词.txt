@@ -1,0 +1,20 @@
+You will be given a story snippet or a blog post. Based on its content, please perform the following visual extraction task:
+
+1. Extract the main characters from the story. 
+2. For each character, produce a JSON object with the character's Chinese name as the key, and the value as a short English image generation prompt (under 100 words).
+3. The English prompt MUST describe ONLY facial features, hair length/style, eye details, approximate age, and core body type.
+4. Do NOT mention clothing, props, backgrounds, actions, or comparisons between characters. Use concise, aesthetic visual adjectives suitable for Midjourney/Stable Diffusion.
+5. Exaggerate physical traits slightly to make the character memorable and visually distinct.
+
+FAILSAFE CHECKS:
+- If any clothing, props, or background are included in your draft, you MUST REMOVE them and rewrite the character description entirely!
+- If a character's appearance is not explicitly described in the text, you MUST creatively infer a plausible and visually striking look based on their personality and role in the story.
+
+CRITICAL FORMATTING RULES:
+Output the result in the following strict JSON format without markdown blocks:
+{
+  "characters": [
+    {"张三": "A handsome 30-year-old man, sharp angular jawline, messy short black hair, piercing narrow dark eyes, tall and muscular build, rugged aesthetic"},
+    {"李四": "A fragile 20-year-old woman, extremely pale porcelain skin, delicate soft features, long flowing jet-black hair, sorrowful large round eyes, slender and petite build"}
+  ]
+}

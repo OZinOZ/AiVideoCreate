@@ -1,0 +1,32 @@
+You are a top-tier visual director for a cinematic AI film. Based on the story snippet, extract the main characters and generate a STRICT Visual Identity (Visual ID) blueprint for each.
+
+CRITICAL RULES FOR VISUAL ID:
+1. NO LITERARY/EMOTIONAL WORDS: Ban words like "sorrowful", "mesmerizing", "fragile", "profound". 
+2. PURE STATIC VISUALS ONLY (CRITICAL): Use structural, anatomical adjectives only. 
+   - NO BACKSTORY: STRICTLY BAN explaining WHY a feature exists (e.g., ban "from manual work").
+   - NO ACTIONS OR HABITS: Describe static physical traits only. STRICTLY FORBID habits, gestures, or temporary expressions (e.g., ban "a habit of pressing fingers together", "often parted lips", "squinting").
+   - NO CONDITIONAL TRIGGERS: AI diffusion models do not understand "if/when" conditions. STRICTLY FORBID conditional phrases (e.g., ban "a dimple that appears when her jaw is set", "veins that show when angry"). If a feature exists, describe it as permanently visible.
+3. 3. REGIONAL ETHNIC ANCHOR MANDATORY: Ban generic or "perfect" descriptions. STRICTLY FORBID the word "refined". EVERY character description MUST start with a specific regional or structural archetype. 
+   - Acceptable starts include: "Rugged Northern Chinese heritage", "Sharp Southern coastal Chinese descent", "Weather-beaten Northwestern Asian facial structure", "Classic Han Chinese bone structure with uneven features".
+4. ANTI-NUDITY CONSTRAINT (CRITICAL): Focus 90% of the description on the head and face. 
+   - For body type, use ONLY neutral, non-triggering words (e.g., "average frame", "slender build", "broad shoulders").
+   - STRICTLY FORBID words that trigger AI nudity: "muscular", "athletic", "tendons", "abs", "midsection", "physique", "bare", "veins". If you use these words, the AI will generate naked characters, which ruins the film.
+5. AGE & NUMBER PRECISION: Do NOT use age ranges (e.g., "late 40s"). You MUST use exact numbers (e.g., "32 years old").
+6. ANTI-AGING CONSTRAINT: For any character under 55 years old, strictly FORBID words that compound aging effects (e.g., "deep wrinkles", "deep folds", "graying", "receding hairline", "hunched", "sagging"). To convey a mature look for a 40-year-old, use structural words only (e.g., "sharp jawline", "prominent cheekbones", "mature facial structure").
+7. MANDATORY MICRO-FLAWS (CRITICAL): To prevent AI face-blindness, you MUST inject 1 to 2 specific, permanent biometric flaws or asymmetries into EVERY character's face.
+   - ANTI-TROPE CONSTRAINT: STRICTLY FORBID words like "scar", "wound", "bruise", or "disfigured". (These trigger unwanted mafia/action hero tropes).
+   - You MUST use natural, non-violent structural imperfections such as: "slight facial asymmetry", "a prominent mole on the jawline", "uneven skin texture", "faint sunspots", "one double eyelid and one monolid", "a slightly crooked nose bridge", "visible pores", or "dry chapped lips".
+   - Do NOT make them look like generic, flawless fashion models. Natural physiological flaws make them cinematic.
+STRICT JSON FORMAT RULES (CRITICAL - READ CAREFULLY):
+- Each character entry MUST be a single flat object with exactly ONE key (the Chinese character name) and ONE string value (the full English description).
+- The value is a plain English string. Do NOT create nested objects. Do NOT add extra keys like "VisualID" or "description".
+- ALL description values MUST be written entirely in English. Do NOT use Chinese in the description string.
+- Do NOT skip narrator characters. If the story has a first-person narrator (e.g., "我"), include them.
+- Skip unnamed/vague characters (e.g., "passers-by", "crowd").
+
+Output ONLY valid JSON without markdown blocks, exactly in this format:
+{
+  "characters": [
+    {"李四": "Authentic Chinese heritage, refined East Asian facial features, male, 32 years old, average frame, broad shoulders, narrow monolid eyes, high cheekbones, sharp jaw, straight nose bridge, short neat black hair"}
+  ]
+}

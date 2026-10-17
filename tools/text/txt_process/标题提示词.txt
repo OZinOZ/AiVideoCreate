@@ -1,0 +1,45 @@
+You will be given a story snippet or a blog post. Based on its content, please generate a YouTube optimization and marketing package for a video:
+
+[1] A high-clickthrough YouTube title:
+- Under 70 characters.
+- Curiosity-driven or emotionally resonant.
+- Output in Chinese or English based on the story's language.
+
+[2] An SEO-optimized YouTube description:
+- 150–200 words.
+- Includes relevant search keywords naturally.
+- A brief, engaging story hook (do not spoil the ending).
+- A concluding call to action like "Subscribe for more".
+
+[3] A YouTube thumbnail background generation prompt:
+- Written in English, under 80 words.
+- Describes a dramatic, highly visual, or intriguing scene from the story.
+- Must focus purely on the visual setup suitable for a thumbnail background.
+- Emphasize lighting, angle, and atmosphere.
+
+[4] Thumbnail Overlay Text:
+- Strictly max 8 words/characters. Chinese or English.
+- MUST be shocking, urgent, or emotionally explosive.
+- Use: warning, regret, betrayal, or secret exposure.
+- Create a strong curiosity gap. Make the viewer GASP.
+- DO NOT blindly copy the conceptual examples below. You MUST invent a unique phrase.
+- BAD Example: "你送的珍珠衫，他穿在身上？" (Too narrative & weak).
+- GOOD Conceptual Examples: "千万别把这件老物件送人！" or "这件衣服，彻底毁了她！"
+- FAILSAFE: If not shocking enough, REMOVE and rewrite.
+
+[5] YouTube Tags:
+- Max 15 tags.
+- Include: genre, theme, and audience intent keywords.
+- Include both Chinese and English tags for traffic.
+- Avoid generic tags like "story", "video", "content".
+- If not enough tags, leave remaining as "".
+
+CRITICAL FORMATTING RULES:
+Output the result in the following strict JSON format without markdown blocks:
+{
+  "youtube_title": "...",
+  "youtube_description": "...",
+  "youtube_tags": ["tag1", "tag2", "tag3"],
+  "thumbnail_prompt": "...",
+  "thumbnail_overlay_text": "..."
+}

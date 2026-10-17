@@ -1,0 +1,26 @@
+﻿app_name,start_time,end_time,result,output_path,story
+app_sleep_story.py,2026/3/22 15:20,2026/3/22 15:22,FAILED,D:/AIGen/MasterFactory_Dual\20260322_152047,
+app_sleep_story.py,2026/3/22 15:23,2026/3/22 17:22,FAILED,D:/AIGen/MasterFactory_Dual\20260322_152343,
+app_sleep_story.py,2026/3/22 17:25,2026/3/22 17:36,FAILED,D:/AIGen/MasterFactory_Dual\20260322_172541,
+app_sleep_story.py,2026/3/22 18:05,2026/3/22 18:08,FAILED,D:/AIGen/MasterFactory_Dual\20260322_180542,
+app_sleep_story.py,2026/3/22 19:41,2026/3/22 20:13,FAILED,D:/AIGen/MasterFactory_Dual\20260322_194112,
+app_sleep_story.py,2026/3/22 20:23,2026/3/22 20:24,FAILED,D:/AIGen/MasterFactory_Dual/20260322_194112,
+app_sleep_story.py,2026/3/22 20:29,2026/3/22 20:30,FAILED,D:/AIGen/MasterFactory_Dual/20260322_194112,
+app_sleep_story.py,2026/3/22 20:59,2026/3/22 21:00,FAILED,D:/AIGen/MasterFactory_Dual/20260322_194112,
+app_sleep_story.py,2026/3/22 21:00,2026/3/22 21:10,FAILED,D:/AIGen/MasterFactory_Dual/20260322_194112,
+app_sleep_story.py,2026/3/22 21:15,2026/3/22 22:40,SUCCESS,D:/AIGen/MasterFactory_Dual/20260322_194112,
+app_sleep_story.py,2026/3/22 22:54,2026/3/22 23:19,SUCCESS,D:/AIGen/MasterFactory_Dual\20260322_225427,
+app_sleep_story.py,2026/3/23 7:41,2026/3/23 7:44,FAILED,D:/AIGen/MasterFactory_Dual/20260322_225427,
+app_sleep_story.py,2026/3/23 8:09,2026/3/23 8:11,FAILED,D:/AIGen/MasterFactory_Dual/20260322_225427,
+app_sleep_story.py,2026/3/23 8:12,2026/3/23 8:49,SUCCESS,D:/AIGen/MasterFactory_Dual/20260322_225427,
+app_sleep_story.py,2026-03-23 14:36:19,2026-03-23 14:36:34,FAILED,D:/AIGen/MasterFactory_Dual/20260322_225427,The Wolf & the Heron
+app_sleep_story.py,2026-03-23 18:35:58,2026-03-23 18:36:13,FAILED,D:/AIGen/MasterFactory_Dual/20260322_225427,Peter & the Wolf
+app_sleep_story.py,2026-03-23 18:36:39,2026-03-23 18:37:18,FAILED,D:/AIGen/MasterFactory_Dual\20260323_183639,The Three Billy Goats Gruff
+app_sleep_story.py,2026-03-23 18:59:10,2026-03-23 18:59:53,FAILED,D:/AIGen/MasterFactory_Dual\20260323_185910,The Wild Swans
+app_sleep_story.py,2026-03-23 19:01:40,2026-03-23 19:02:22,FAILED,D:/AIGen/MasterFactory_Dual\20260323_190140,The Secret Garden
+app_sleep_story.py,2026-03-23 19:04:35,2026-03-23 20:18:47,FAILED,D:/AIGen/MasterFactory_Dual\20260323_190436,Moby Dick
+app_sleep_story.py,2026-03-23 20:49:57,2026-03-23 20:49:57,SUCCESS,D:/AIGen/MasterFactory_Dual/20260323_190436,The Golden Goose
+app_sleep_story.py,2026-03-23 20:50:34,2026-03-23 20:52:39,FAILED,D:/AIGen/MasterFactory_Dual/20260323_190436,The Ugly Duckling
+app_sleep_story.py,2026-03-23 21:07:40,2026-03-23 21:09:45,FAILED,D:/AIGen/MasterFactory_Dual\20260323_210740,Unknown
+app_sleep_story.py,2026-03-23 21:10:22,2026-03-23 21:15:11,SUCCESS,D:/AIGen/MasterFactory_Dual\20260323_211022,Beowulf
+app_sleep_story.py,2026-03-23 21:29:22,2026-03-23 22:57:54,SUCCESS,D:/AIGen/MasterFactory_Dual\20260323_212922,The Wizard of Oz

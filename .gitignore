@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+*.env
+!.env.example
+.vscode/
+.claude/
+*.ttc
+output/
+extracted_stories/
+token.json
+client_secret*.json
+*service_account*.json
+stop.txt

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脚本编辑器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .row-1 {
+            justify-content: flex-start;
+        }
+
+        .row-2, .row-3 {
+            justify-content: center;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #117a8b;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        #contentArea {
+            width: 100%;
+            min-height: 400px;
+            max-height: 80vh;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>脚本编辑器</h1>
+
+        <!-- 第一行：下拉框 -->
+        <div class="row row-1">
+            <label for="titleSelect">选择标题：</label>
+            <select id="titleSelect">
+                <option value="">请选择...</option>
+                {% for item in titles %}
+                <option value="{{ item.path }}" data-title="{{ item.title }}">{{ item.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- 第二行：载入、粘贴、保存 -->
+        <div class="row row-2">
+            <button id="loadBtn" class="btn-primary">载入</button>
+            <button id="pasteBtn" class="btn-secondary">粘贴</button>
+            <button id="saveBtn" class="btn-success">保存</button>
+            <button id="completeBtn" class="btn-info">完成</button>
+        </div>
+
+        <!-- 第三行：生成按钮 -->
+        <div class="row row-3">
+            <button id="generateContentBtn" class="btn-warning">生成文案</button>
+            <button id="generateCharacterBtn" class="btn-info">生成角色信息</button>
+            <button id="generateYoutubeBtn" class="btn-danger">生成YouTube信息</button>
+        </div>
+
+        <!-- 文本区域 -->
+        <div class="row">
+            <textarea id="contentArea" placeholder="文本内容将显示在这里..."></textarea>
+        </div>
+
+        <!-- 消息显示区域 -->
+        <div id="messageArea" class="hidden"></div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const titleSelect = document.getElementById('titleSelect');
+        const loadBtn = document.getElementById('loadBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const completeBtn = document.getElementById('completeBtn');
+        const generateContentBtn = document.getElementById('generateContentBtn');
+        const generateCharacterBtn = document.getElementById('generateCharacterBtn');
+        const generateYoutubeBtn = document.getElementById('generateYoutubeBtn');
+        const contentArea = document.getElementById('contentArea');
+        const messageArea = document.getElementById('messageArea');
+
+        // 缓存原始载入的内容和生成的文案
+        let originalContent = '';
+        let generatedContent = '';  // 缓存生成的文案
+
+        // 显示消息
+        function showMessage(text, type = 'info') {
+            messageArea.className = `message ${type}`;
+            messageArea.textContent = text;
+            messageArea.classList.remove('hidden');
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 3000);
+        }
+
+        // API 请求封装
+        async function apiRequest(url, data = {}) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                return { success: false, message: '网络请求失败' };
+            }
+        }
+
+        // 自动调整文本框高度
+        function autoResizeTextarea() {
+            const lines = contentArea.value.split('\n').length;
+            const minHeight = 400;
+            const lineHeight = 20;
+            const newHeight = Math.max(minHeight, lines * lineHeight + 50);
+
+            contentArea.style.height = newHeight + 'px';
+        }
+
+        // 载入按钮
+        loadBtn.addEventListener('click', async () => {
+            const selectedOption = titleSelect.selectedOptions[0];
+            if (!selectedOption || !selectedOption.value) {
+                showMessage('请先选择一个标题', 'error');
+                return;
+            }
+
+            loadBtn.classList.add('loading');
+            loadBtn.textContent = '载入中...';
+
+            const result = await apiRequest('/api/load', {
+                title: selectedOption.dataset.title,
+                path: selectedOption.value
+            });
+
+            loadBtn.classList.remove('loading');
+            loadBtn.textContent = '载入';
+
+            if (result.success) {
+                contentArea.value = result.content;
+                originalContent = result.content; // 缓存原始内容
+                autoResizeTextarea();
+                showMessage(result.message, 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 粘贴按钮
+        pasteBtn.addEventListener('click', async () => {
+            pasteBtn.classList.add('loading');
+            pasteBtn.textContent = '粘贴中...';
+
+            const result = await apiRequest('/api/paste');
+
+            pasteBtn.classList.remove('loading');
+            pasteBtn.textContent = '粘贴';
+
+            if (result.success) {
+                contentArea.value = result.content;
+
+                // 如果粘贴的内容比原始内容长很多，认为是生成的文案，进行缓存
+                if (originalContent && result.content.length > originalContent.length * 1.2) {
+                    generatedContent = result.content;
+                    console.log('Cached generated content');
+                }
+
+                autoResizeTextarea();
+                showMessage(result.message, 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 保存按钮
+        saveBtn.addEventListener('click', async () => {
+            if (!contentArea.value.trim()) {
+                showMessage('内容为空，无法保存', 'error');
+                return;
+            }
+
+            // 获取当前选择的标题信息
+            const selectedOption = titleSelect.selectedOptions[0];
+            if (!selectedOption || !selectedOption.value) {
+                showMessage('请先选择一个标题', 'error');
+                return;
+            }
+
+            saveBtn.classList.add('loading');
+            saveBtn.textContent = '保存中...';
+
+            const result = await apiRequest('/api/save', {
+                content: contentArea.value,
+                title: selectedOption.dataset.title,
+                path: selectedOption.value
+            });
+
+            saveBtn.classList.remove('loading');
+            saveBtn.textContent = '保存';
+
+            if (result.success) {
+                showMessage(result.message, 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 完成按钮
+        completeBtn.addEventListener('click', async () => {
+            // 获取当前选择的标题信息
+            const selectedOption = titleSelect.selectedOptions[0];
+            if (!selectedOption || !selectedOption.value) {
+                showMessage('请先选择一个标题', 'error');
+                return;
+            }
+
+            if (!confirm(`确认标记 "${selectedOption.dataset.title}" 为完成吗？\n标记后该项将从列表中从载入。`)) {
+                return;
+            }
+
+            completeBtn.classList.add('loading');
+            completeBtn.textContent = '处理中...';
+
+            const result = await apiRequest('/api/complete', {
+                title: selectedOption.dataset.title,
+                path: selectedOption.value
+            });
+
+            completeBtn.classList.remove('loading');
+            completeBtn.textContent = '完成';
+
+            if (result.success) {
+                showMessage(result.message, 'success');
+                // 1.5秒后刷新页面以更新下拉列表
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 生成按钮通用处理
+        function setupGenerateButton(button, type, name) {
+            button.addEventListener('click', async () => {
+                // 使用原始载入的内容，而不是当前文本框内容
+                if (!originalContent.trim()) {
+                    showMessage('请先载入原始文案', 'error');
+                    return;
+                }
+
+                button.classList.add('loading');
+                const originalText = button.textContent;
+                button.textContent = '生成中...';
+
+                const result = await apiRequest('/api/generate', {
+                    type: type,
+                    content: originalContent  // 使用原始内容
+                });
+
+                button.classList.remove('loading');
+                button.textContent = originalText;
+
+                if (result.success) {
+                    showMessage(`${name}已复制到剪贴板，基于原始文案生成`, 'success');
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            });
+        }
+
+        // 设置生成按钮
+        // 生成文案：基于原始内容，并缓存生成的文案
+        generateContentBtn.addEventListener('click', async () => {
+            if (!originalContent.trim()) {
+                showMessage('请先载入原始文案', 'error');
+                return;
+            }
+
+            generateContentBtn.classList.add('loading');
+            generateContentBtn.textContent = '生成中...';
+
+            const result = await apiRequest('/api/generate', {
+                type: 'content',
+                content: originalContent
+            });
+
+            generateContentBtn.classList.remove('loading');
+            generateContentBtn.textContent = '生成文案';
+
+            if (result.success) {
+                // 直接使用服务器返回的生成内容进行缓存
+                if (result.generated_content) {
+                    generatedContent = result.generated_content;
+                    console.log('Cached generated content:', generatedContent.substring(0, 100) + '...');
+                }
+                showMessage('文案已复制到剪贴板并缓存（基于原始内容）', 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 生成角色信息：基于当前文本框内容（用户可能已粘贴 AI 改写后的文案）
+        generateCharacterBtn.addEventListener('click', async () => {
+            if (!contentArea.value.trim()) {
+                showMessage('请先在文本框中输入或粘贴内容', 'error');
+                return;
+            }
+
+            generateCharacterBtn.classList.add('loading');
+            generateCharacterBtn.textContent = '生成中...';
+
+            const result = await apiRequest('/api/generate', {
+                type: 'character',
+                content: contentArea.value  // 使用当前文本框内容
+            });
+
+            generateCharacterBtn.classList.remove('loading');
+            generateCharacterBtn.textContent = '生成角色信息';
+
+            if (result.success) {
+                showMessage('角色信息已复制到剪贴板（基于当前文本框内容）', 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 生成YouTube信息：后端会自动复用「生成角色」时的文本
+        generateYoutubeBtn.addEventListener('click', async () => {
+            if (!contentArea.value.trim() && !originalContent.trim()) {
+                showMessage('请先载入原始文案或生成文案', 'error');
+                return;
+            }
+
+            generateYoutubeBtn.classList.add('loading');
+            generateYoutubeBtn.textContent = '生成中...';
+
+            const result = await apiRequest('/api/generate', {
+                type: 'youtube',
+                content: contentArea.value  // 后端若有 global_input_text 会优先用它
+            });
+
+            generateYoutubeBtn.classList.remove('loading');
+            generateYoutubeBtn.textContent = '生成YouTube信息';
+
+            if (result.success) {
+                showMessage('YouTube信息已复制到剪贴板', 'success');
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // 文本框内容变化时自动调整高度
+        contentArea.addEventListener('input', autoResizeTextarea);
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            autoResizeTextarea();
+            showMessage('编辑器已就绪', 'info');
+        });
+    </script>
+</body>
+</html>

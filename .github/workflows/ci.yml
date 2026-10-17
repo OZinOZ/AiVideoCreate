@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    name: Lint + Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest ruff
+
+      - name: Syntax check (ruff, errors only)
+        run: ruff check --select E9,F63,F7,F82 --exclude archive tools pipeline tests
+
+      - name: Run tests
+        env:
+          # No real secrets in CI - tests are designed to run without them.
+          PEXELS_API_KEY: ""
+          PIXABAY_API_KEY: ""
+        run: pytest -v
