@@ -1,3 +1,4 @@
+# ruff: noqa: F821  # This file is a code fragment (patch snippet), not a standalone runnable script.
 # ... (前面的导入和配置保持不变) ...
 
 def final_fusion():

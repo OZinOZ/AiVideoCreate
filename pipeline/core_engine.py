@@ -33,7 +33,7 @@ import tempfile
 import argparse
 from datetime import datetime
 from dataclasses import dataclass
-from typing import Any, Optional, Dict, Tuple
+from typing import Any, List, Optional, Dict, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageStat
 

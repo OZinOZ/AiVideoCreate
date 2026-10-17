@@ -2,6 +2,7 @@ import os
 import random
 import subprocess
 import json
+import re
 import math
 
 # ================== 基础配置 ==================
