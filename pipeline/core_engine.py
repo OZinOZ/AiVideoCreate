@@ -177,7 +177,7 @@ CLIENT_SECRETS_FILE = 'client_secret.json'
 PATTERN_PURE_SYMBOLS = r"^[\s\-\*#=~_]{3,}\s*$"
 # Pattern 2: match title lines with common AI prefixes/suffixes, tolerating various wrapper symbols
 # e.g., "--- Chinese Script ---", "### Final Output:", "[Translation Result]"
-PATTERN_AI_PREFIXES = r"^[\s\-\*#=【\[]*(Chinese|English|Final)?(Script|Output|Text|Translation|Generation|Story|Content|Result)[】\]\s\-\*#=]*[:：]?\s*$"
+PATTERN_AI_PREFIXES = r"^[\s\-\*#=【\[]*((Chinese|English|Final|Script|Output|Text|Translation|Generation|Story|Content|Result)[\s\-\*#=】\]]*)+[:：]?[\s\-\*#=】\]]*$"
 
 # =====================================================================
 # DATA STRUCTURES & UTILITIES

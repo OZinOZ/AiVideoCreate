@@ -40,6 +40,17 @@ class TestRemoveAiHallucinations:
         assert "English Output" not in result
         assert "content" in result
 
+    def test_removes_bracketed_label_pairs(self):
+        # "[Translation Result]" is the pattern's own documented example
+        text = "[Translation Result]\n正文"
+        result = core_engine.remove_ai_hallucinations(text)
+        assert "Translation" not in result
+        assert "正文" in result
+
+    def test_keeps_sentences_containing_label_words(self):
+        text = "The Script of the movie is Output related"
+        assert core_engine.remove_ai_hallucinations(text) == text
+
 
 class TestCleanFormatting:
     def test_collapses_excessive_blank_lines(self):
