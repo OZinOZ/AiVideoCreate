@@ -1,32 +1,33 @@
-# 整合分析
+# Merge Analysis
 
-## 原目录处理结果
+## How the original directories were handled
 
-| 原目录 | 处理 |
+| Original directory | Disposition |
 |---|---|
-| `Pipeline_model` = `pipiline_local`（文件完全相同） | 成为主工程 `pipeline/` |
-| `pipiline_local_optimize` | **删除**：`app_local_runner`/`core_engine` 是 local 的旧版子集，无独有功能 |
-| `pipeline_optimize`（modular） | **删除**：core_io/llm/media 拆分实验，未成主线 |
-| `pipiline_github` | 渲染逻辑 → `RENDER_BACKEND="github"`；`GitHubSyncManager`、`encode_video_github_sync`、GDrive 取回其实已在 local 的 core_engine 里，只是 local runner 没接线，现已接上；工具脚本 → `tools/` |
-| `pipeline_colab` | worker notebook 与控制端 → `colab/`；协议实现为 `RENDER_BACKEND="colab"`（`render_backends.py`）；其余是 cloud_legacy 副本，丢弃 |
-| `pipeline`（cloud_legacy） | 字体 → `pipeline/assets/fonts`；频道 → `pipeline/channels_legacy`；uploader/runninghub → `tools/`；旧 runner 整体 → `archive/cloud_legacy`（可删） |
+| `Pipeline_model` = `pipiline_local` (files identical) | became the main project `pipeline/` |
+| `pipiline_local_optimize` | **deleted**: its `app_local_runner`/`core_engine` were old subsets of local, no unique features |
+| `pipeline_optimize` (modular) | **deleted**: core_io/llm/media split experiment, never the mainline |
+| `pipiline_github` | render logic → `RENDER_BACKEND="github"`; `GitHubSyncManager`, `encode_video_github_sync`, GDrive retrieval were already in local's core_engine — the local runner just wasn't wired up; now connected. Utility scripts → `tools/` |
+| `pipeline_colab` | worker notebook & controller → `colab/`; protocol implemented as `RENDER_BACKEND="colab"` (`render_backends.py`); the rest were cloud_legacy duplicates, dropped |
+| `pipeline` (cloud_legacy) | fonts → `pipeline/assets/fonts`; channels → `pipeline/channels_legacy`; uploader/runninghub → `tools/`; old runner → `archive/cloud_legacy` (deletable) |
 
-## 本次代码改动（均在 `pipeline/`）
+## Code changes made during the merge (all in `pipeline/`)
 
-1. **修复**：`core_engine.py` 的 `MODEL_CONFIG` 在 `"AGNES_MODEL"` 后少一个逗号 → 原 local 版本是 SyntaxError，无法导入。
-2. 新增 `render_backends.py`：`resolve_render_backend` / `get_render_config` / `get_render_parallelism` / `encode_video_colab_sync` / `build_colab_ffmpeg_command`。
-3. `app_local_runner.py`：`MediaPipeline` 增加 `render_backend/render_config`，新增 `_encode_video` 分发、`_encode_video_github_sync`（含重试）、`_encode_video_colab_sync`；`execute_channel` 按后端设置并发、配置/清理 GitHub 工作区；新增 `--render-backend` 参数。
-4. `base_config.py`：新增 `RENDER_BACKEND`、`COLAB_INTERFACE_CONFIG`、`REPO_FONT_DIR`；`runtime_config.py`：`COLAB_DRIVE_DIR` 环境变量映射。
-5. `tools/story/trait_pool.py`：从 github 版 base_config 抽出 `TRAIT_POOL`，供 regen/fix_characters 使用（local base_config 没有）。
+1. **Fix**: `MODEL_CONFIG` in `core_engine.py` was missing a comma after `"AGNES_MODEL"` → the original local version was a SyntaxError and could not even be imported.
+2. Added `render_backends.py`: `resolve_render_backend` / `get_render_config` / `get_render_parallelism` / `encode_video_colab_sync` / `build_colab_ffmpeg_command`.
+3. `app_local_runner.py`: `MediaPipeline` gained `render_backend/render_config`, new `_encode_video` dispatch, `_encode_video_github_sync` (with retries), `_encode_video_colab_sync`; `execute_channel` sets parallelism and configures/cleans the GitHub workspace per backend; new `--render-backend` flag.
+4. `base_config.py`: added `RENDER_BACKEND`, `COLAB_INTERFACE_CONFIG`, `REPO_FONT_DIR`; `runtime_config.py`: `COLAB_DRIVE_DIR` env mapping.
+5. `tools/story/trait_pool.py`: extracted `TRAIT_POOL` from the github-version base_config for regen/fix_characters (local base_config didn't have it).
 
-## 安全
+## Security
 
-- 原 `pipiline_github/default.env` 末尾**粘贴了 Google 服务账号 JSON（含 private_key）**，并含真实 API Key。该文件**未**复制进新工程，也已不在新 git 历史中；新工程提供空值的 `.env.example`。**请务必轮换这些密钥**（服务账号 key、OpenAI/Gemini/SiliconFlow/RunningHub/GitHub/ImgBB）。该文件不在旧仓库的 git 跟踪中，但仍在磁盘上，请自行删除。
+- The original `pipiline_github/default.env` had a **Google service-account JSON (with private_key) pasted at the end**, plus real API keys. That file was **not** copied into the new project and is not in the new git history; the new project ships an empty-valued `.env.example`. **Rotate those secrets** (service-account key, OpenAI/Gemini/SiliconFlow/RunningHub/GitHub/ImgBB) as good practice. The file was not tracked in the old repo's git, but remained on disk — delete it manually.
+- October 2026 cleanup: the Pexels/Pixabay keys hardcoded in `tools/video/download/*` and `tools/video/mermaid/mermaid.py` were replaced with `os.getenv()` reads and added to `.env.example`; the only git commit containing them was rewritten locally before the repo was ever pushed, so no secret history exists on GitHub. `tests/test_no_hardcoded_keys.py` now guards against regressions.
 
-## 未验证 / 已知问题
+## Unverified / known issues
 
-- 未实际跑通完整流水线与 GitHub / Colab 端到端（需要你的密钥与云端环境），仅做了语法与导入检查。
-- `channels_legacy/*` 来自旧 base_config，字段可能与新 runner 不完全匹配。
-- `tools/video/youtube_factory/pretty.py` 第 581 行语法错误（原文件即如此）。
-- 大量硬编码盘符路径（`I:\AiVideos`, `E:\assets`, `Y:/assets`）仍需按机器修改。
-- `tools/story/*`、`prompt_editor` 内的路径是原作者机器路径。
+- The full pipeline and the GitHub / Colab backends were never run end-to-end during the merge (requires secrets and cloud environments); only syntax and import checks were performed.
+- `channels_legacy/*` comes from the old base_config; fields may not fully match the new runner.
+- ~~`tools/video/youtube_factory/pretty.py` line 581 syntax error (broken in the original file).~~ Fixed (October 2026): `raw_ mp3` → `raw_mp3`.
+- Many hardcoded drive-letter paths (`I:\AiVideos`, `E:\assets`, `Y:/assets`) still need per-machine adjustment.
+- Paths inside `tools/story/*` and `prompt_editor` are the original author's machine paths.

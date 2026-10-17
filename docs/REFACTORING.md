@@ -1,44 +1,46 @@
-# 代码整理与优化建议（REFACTORING）
+# Refactoring Notes & Recommendations
 
-本次整理（2026-10）已完成的事项 + 后续建议，按风险从低到高排序。
+What this cleanup (October 2026) already did + suggested follow-ups, ordered by risk (low → high).
 
-## 已完成
+## Completed
 
-1. **移除全部硬编码密钥**：`tools/video/download/*`（10 个文件）与 `tools/video/mermaid/mermaid.py` 中硬编码的 Pexels / Pixabay API key 改为 `os.getenv()` 读取，并加入 `.env.example`。
-2. **修复 `tools/video/youtube_factory/pretty.py` 语法错误**：第 581 行 `raw_ mp3` → `raw_mp3`（原文件即无法通过编译）。
-3. **补充 README / DESIGN.md / 测试 / CI**，密钥扫描纳入 CI 防回归。
+1. **Removed all hardcoded secrets**: the Pexels / Pixabay API keys hardcoded in `tools/video/download/*` (10 files) and `tools/video/mermaid/mermaid.py` now load via `os.getenv()` and are listed in `.env.example`.
+2. **Fixed the syntax error in `tools/video/youtube_factory/pretty.py`**: line 581 `raw_ mp3` → `raw_mp3` (the file never compiled as shipped).
+3. **Fixed undefined names found by ruff**: missing `List` import in `pipeline/core_engine.py`, missing `import re` in `tools/video/mermaid/mermaid_mix_gemini.py`; `mermaid_4k_update.py` is a patch snippet (not standalone-runnable) and is marked `noqa`.
+4. **Fixed a real bug in `PATTERN_AI_PREFIXES`** (core_engine.py): the regex could not match label lines with two consecutive words (`--- Chinese Script ---`, `[Translation Result]`), even though these are its own documented examples. Rewritten as a label-word-sequence pattern; verified it still leaves normal sentences untouched.
+5. **README / DESIGN.md / tests / CI added**; secret scanning is part of CI to prevent regressions.
 
-## 建议：低成本、高收益（可近期做）
+## Recommended: low cost, high value (near term)
 
-1. **删除 `archive/cloud_legacy/`**：已被 `pipeline/` 完全取代，ANALYSIS.md 已注明仅供参考。删除可减约 2k 行死代码。
-2. **统一下载脚本**：`tools/video/download/` 下 10 个脚本 90% 重复（同一组 PEXELS/PIXABAY 逻辑反复复制）。可抽一个 `download_lib.py`（含 `ensure_dir` / `download_file` / pexels+pixabay 搜索），各脚本只保留配置差异。
-3. **mermaid 系列收敛**：`tools/video/mermaid/` 下 16 个文件多为迭代版本（`mermaid_mix_4k_final` / `_safe` / `_new`），建议只保留 `mermaid_main.py` + `mermaid_func.py` 一条主线，其余移入 `archive/`。
-4. **把 `pipeline/` 变成真正的包**：目前是 flat import（`import core_engine`），必须在 `pipeline/` 目录下运行。改为 `pipeline/` 包 + 相对导入（或统一 `from pipeline import ...`）后，可以从任意目录运行，测试也更干净。
-5. **`__pycache__` 清理**：磁盘上残留 `cpython-311.pyc`，已被 gitignore，可随手删除。
+1. **Delete `archive/cloud_legacy/`**: fully superseded by `pipeline/` (see ANALYSIS.md). Removes ~2k lines of dead code.
+2. **Consolidate the download scripts**: the 10 scripts under `tools/video/download/` are ~90% duplicated (same PEXELS/PIXABAY logic copy-pasted). Extract a `download_lib.py` (with `ensure_dir` / `download_file` / pexels+pixabay search); each script keeps only its config differences.
+3. **Converge the mermaid family**: the 16 files under `tools/video/mermaid/` are mostly iterations (`mermaid_mix_4k_final` / `_safe` / `_new`). Keep one main line (`mermaid_main.py` + `mermaid_func.py`), move the rest to `archive/`.
+4. **Turn `pipeline/` into a real package**: it currently uses flat imports (`import core_engine`) and must run from inside `pipeline/`. Converting to a package with relative imports (or uniform `from pipeline import ...`) allows running from anywhere and makes testing cleaner.
+5. **`__pycache__` hygiene**: stale `cpython-311.pyc` files linger on disk; they are gitignored but can be deleted.
 
-## 建议：中等成本（结构演进）
+## Recommended: medium cost (structural evolution)
 
-6. **拆分 `core_engine.py`（3000+ 行）**：天然边界已存在——
-   - `llm_client.py`（`robust_*_call` 系列、`safe_json_loads`、清洗管线）
-   - `tts_audio.py`（Azure/edge TTS、`master_audio_sync`、SSML）
-   - `image_client.py`（RunningHub、熔断）
-   - `video_render.py`（ffmpeg 命令构建、`render_video_multi_segment_sync`）
-   - `cloud_sync.py`（GitHubSyncManager、GDrive、YouTube）
-   - `runtime.py`（LoggerManager、ConcurrencyManager、SystemController、`save_task_record`）
+6. **Split `core_engine.py` (3k+ lines)**: natural seams already exist —
+   - `llm_client.py` (`robust_*_call` family, `safe_json_loads`, cleaning pipeline)
+   - `tts_audio.py` (Azure/edge TTS, `master_audio_sync`, SSML)
+   - `image_client.py` (RunningHub, circuit breaker)
+   - `video_render.py` (ffmpeg command building, `render_video_multi_segment_sync`)
+   - `cloud_sync.py` (GitHubSyncManager, GDrive, YouTube)
+   - `runtime.py` (LoggerManager, ConcurrencyManager, SystemController, `save_task_record`)
    
-   拆分时保持 `core_engine.py` 作为兼容 facade（`from llm_client import *` 等），调用方零改动。
-7. **拆分 `app_local_runner.py`（2100+ 行）**：`StoryPipeline` 与 `MediaPipeline` 是两个独立关注点，可分别成模块；`execute_channel` 中的 CLI 覆盖逻辑应下沉到 `runtime_config`（那里已有 `_CLI_OVERRIDE_MAP` 机制，目前 runner 里手写了一遍，两处并存）。
-8. **频道配置 schema 化**：`app_doac.py` / `app_podcast.py` 里的字典（ASSETS_POOL、提示词）用 pydantic 模型校验，坏配置在启动时报错而不是跑到一半才炸。
-9. **`validate_simple_runner_environment` 按后端校验**：当前总是检查 ffmpeg；用 `github`/`colab` 后端渲染时本机其实不需要 ffmpeg，应按 `render_backend` 分支校验必需项。
+   Keep `core_engine.py` as a compatibility facade (`from llm_client import *`, ...) so callers need zero changes.
+7. **Split `app_local_runner.py` (2.1k+ lines)**: `StoryPipeline` and `MediaPipeline` are two separate concerns and deserve their own modules. The CLI-override logic inside `execute_channel` should sink into `runtime_config` (which already has `_CLI_OVERRIDE_MAP`; the runner currently re-implements it by hand, and the two coexist).
+8. **Schema-validate channel configs**: wrap the dicts in `app_doac.py` / `app_podcast.py` (ASSETS_POOL, prompts) with pydantic models so bad configs fail at startup instead of mid-run.
+9. **Make `validate_simple_runner_environment` backend-aware**: it always checks for ffmpeg; when rendering via `github`/`colab` the local machine does not need ffmpeg. Validate only what the selected backend requires.
 
-## 建议：长期
+## Recommended: long term
 
-10. **产物清单 (manifest)**：每个 task 目录生成 `manifest.json`（段落、文件哈希、各阶段耗时/费用），比 `record.csv` 一行更利于断点续跑与成本核算。
-11. **配置漂移检查**：`channels_legacy` 字段与新 runner 不对齐的问题，可以用 pydantic schema 对所有 `app_*.py` 做一次性静态校验，把问题在 CI 里暴露。
-12. **路径去硬编码**：tools/ 下的盘符路径（`I:\AiVideos`、`E:\assets` 等）统一改为环境变量/配置文件。
+10. **Run manifests**: generate `manifest.json` per task directory (segments, file hashes, per-stage duration/cost) — far better for resume and cost accounting than one `record.csv` row.
+11. **Config-drift checks**: the `channels_legacy` field mismatch problem can be surfaced by statically validating every `app_*.py` against a pydantic schema in CI.
+12. **De-hardcode paths**: drive-letter paths in tools/ (`I:\AiVideos`, `E:\assets`, ...) should become env vars / a config file.
 
-## 测试与 CI
+## Testing & CI
 
-- `tests/` 覆盖：配置解析（runtime_config）、渲染后端解析（render_backends）、文本清洗函数、密钥扫描。
-- CI（`.github/workflows/ci.yml`）：Python 3.11 + 3.12 双版本，ruff 语法检查 + pytest + 密钥扫描，每次 push / PR 触发。
-- 有意不测的部分：LLM/TTS/图像真实调用（需要密钥且烧钱）、ffmpeg 实际渲染（CI 机器慢）。如需端到端验证，可加手动触发的 `workflow_dispatch` smoke test。
+- `tests/` covers: config parsing (runtime_config), render-backend resolution (render_backends), text-cleaning functions, secret scanning.
+- CI (`.github/workflows/ci.yml`): Python 3.11 + 3.12, ruff syntax check + pytest + secret scan, on every push / PR.
+- Intentionally not tested: real LLM/TTS/image calls (need keys, cost money), actual ffmpeg rendering (slow on CI). If end-to-end verification is needed, add a manually-triggered `workflow_dispatch` smoke test.
