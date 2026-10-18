@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 """
 FFmpeg 工具集 (合并自 ffmpeg.py / merge_ffmpeg.py / multi_ffmpeg.py / burn_subtitle.py /
 video_color.py / video_4k_process.py / video_convert.py / music_process.py)
@@ -406,6 +406,11 @@ def build_parser():
 
 
 def main():
+    for _s in (sys.stdout, sys.stderr):
+        try:
+            _s.reconfigure(errors="replace")
+        except Exception:
+            pass
     args = build_parser().parse_args()
     args.fn(args)
 

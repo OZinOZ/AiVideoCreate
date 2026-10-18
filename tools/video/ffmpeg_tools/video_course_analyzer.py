@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 """
 视频课程分析器 (合并自 video_analyze.py / video_parse.py / video_general_parse.py / video_gemini_deepseek.py)
 
@@ -332,6 +332,11 @@ def write_docx(report_text, items, save_path):
 # ==========================================
 
 def main():
+    for _s in (sys.stdout, sys.stderr):
+        try:
+            _s.reconfigure(errors="replace")
+        except Exception:
+            pass
     global client, ds_client, ARGS
     p = argparse.ArgumentParser(description="Gemini 视频课程分析 + Word 决策报告",
                                 epilog=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
