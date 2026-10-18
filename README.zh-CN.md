@@ -18,7 +18,6 @@ pipeline/                      主工程（flat import，需在 pipeline/ 目录
   base_config.py               默认配置（RENDER_BACKEND、GITHUB/COLAB_INTERFACE_CONFIG 等）
   runtime_config.py            分层配置加载：base < 频道 < .env < 环境变量 < CLI
   app_doac.py app_podcast.py   频道配置（DOAC、播客）
-  channels_legacy/             旧云端版频道（prettypet/psychology/tanktail），未在新 runner 验证
   idle_monitor.py              空闲监控
   assets/fonts/                17 款字体（通过 REPO_FONT_DIR 引用）
 colab/                         Colab worker notebook + Drive 协议控制端测试
@@ -27,10 +26,15 @@ tools/
   story/                       regen_characters / fix_characters / app_text_rewrite / app_doac_rewrite
   github/                      Github_clean（清理 Actions runs）
   media/ youtube/ runninghub/  overlay 转码、独立 YouTube 上传器、RunningHub 辅助
-  text/ video/                 文本处理与零散视频脚本（下载、ffmpeg、mermaid、youtube_factory 等）
-archive/cloud_legacy/          最早版本 runner（已被 pipeline/ 取代，仅供参考，可删）
-docs/                          设计文档、配置说明、整合分析
+  text/                        文本处理脚本
+  video/
+    download/media_downloader.py   统一素材下载器（由 10 个下载脚本合并）
+    ffmpeg_tools/                  ffmpeg_tools.py（子命令：merge/subtitle/color/convert/music）+ video_course_analyzer.py
+    mermaid/mermaid_video.py       Mermaid 长视频生成器（由 14 个 mermaid 脚本合并）
+    youtube_factory/               整合后的 YouTube 视频工厂：story_factory / masterclass / warroom / asmr_studio / live_tools / mental
+    misc/ data/                    调试与工具脚本、素材库
 tests/                         pytest 单元测试
+docs/                          设计文档、配置说明、整合分析
 .github/workflows/             CI：每次 push / PR 自动运行 lint + pytest
 ```
 

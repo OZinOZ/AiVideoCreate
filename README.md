@@ -18,7 +18,6 @@ pipeline/                      Main project (flat imports; run from inside pipel
   base_config.py               Default config (RENDER_BACKEND, GITHUB/COLAB_INTERFACE_CONFIG, ...)
   runtime_config.py            Layered config loading: base < channel < .env < env vars < CLI
   app_doac.py app_podcast.py   Channel configs (DOAC, Podcast)
-  channels_legacy/             Legacy cloud-era channels (prettypet/psychology/tanktail), unverified on the new runner
   idle_monitor.py              Idle monitoring
   assets/fonts/                17 bundled fonts (referenced via REPO_FONT_DIR)
 colab/                         Colab worker notebook + Drive-protocol controller tests
@@ -27,10 +26,15 @@ tools/
   story/                       regen_characters / fix_characters / app_text_rewrite / app_doac_rewrite
   github/                      Github_clean (clean up Actions runs)
   media/ youtube/ runninghub/  Overlay transcoding, standalone YouTube uploader, RunningHub helpers
-  text/ video/                 Text processing and miscellaneous video scripts (downloader, ffmpeg tools, mermaid, youtube_factory, ...)
-archive/cloud_legacy/          Earliest runner version (superseded by pipeline/; kept for reference, safe to delete)
-docs/                          Design doc, config reference, merge analysis
+  text/                        Text processing scripts
+  video/
+    download/media_downloader.py   Unified stock-media downloader (merged from 10 download scripts)
+    ffmpeg_tools/                  ffmpeg_tools.py (subcommands: merge/subtitle/color/convert/music) + video_course_analyzer.py
+    mermaid/mermaid_video.py       Mermaid long-video generator (merged from 14 mermaid scripts)
+    youtube_factory/               Consolidated YouTube video factories: story_factory / masterclass / warroom / asmr_studio / live_tools / mental
+    misc/ data/                    Debug & utility scripts, media libraries
 tests/                         pytest unit tests
+docs/                          Design doc, config reference, merge analysis
 .github/workflows/             CI: lint + pytest on every push / PR
 ```
 

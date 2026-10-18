@@ -9,7 +9,7 @@
 | `pipeline_optimize` (modular) | **deleted**: core_io/llm/media split experiment, never the mainline |
 | `pipiline_github` | render logic → `RENDER_BACKEND="github"`; `GitHubSyncManager`, `encode_video_github_sync`, GDrive retrieval were already in local's core_engine — the local runner just wasn't wired up; now connected. Utility scripts → `tools/` |
 | `pipeline_colab` | worker notebook & controller → `colab/`; protocol implemented as `RENDER_BACKEND="colab"` (`render_backends.py`); the rest were cloud_legacy duplicates, dropped |
-| `pipeline` (cloud_legacy) | fonts → `pipeline/assets/fonts`; channels → `pipeline/channels_legacy`; uploader/runninghub → `tools/`; old runner → `archive/cloud_legacy` (deletable) |
+| `pipeline` (cloud_legacy) | fonts → `pipeline/assets/fonts`; uploader/runninghub → `tools/`; old runner → `archive/cloud_legacy` |
 
 ## Code changes made during the merge (all in `pipeline/`)
 
@@ -27,7 +27,11 @@
 ## Unverified / known issues
 
 - The full pipeline and the GitHub / Colab backends were never run end-to-end during the merge (requires secrets and cloud environments); only syntax and import checks were performed.
-- `channels_legacy/*` comes from the old base_config; fields may not fully match the new runner.
 - ~~`tools/video/youtube_factory/pretty.py` line 581 syntax error (broken in the original file).~~ Fixed (October 2026): `raw_ mp3` → `raw_mp3`.
 - Many hardcoded drive-letter paths (`I:\AiVideos`, `E:\assets`, `Y:/assets`) still need per-machine adjustment.
 - Paths inside `tools/story/*` and `prompt_editor` are the original author's machine paths.
+
+## Post-merge cleanup (October 2026)
+
+- `tools/video/download/*` (10 scripts) consolidated into `media_downloader.py`; `tools/video/mermaid/*` (14 scripts) into `mermaid_video.py`; `ffmpeg_tools/*` into `ffmpeg_tools.py` + `video_course_analyzer.py`; `youtube_factory/*` rewritten into consolidated factories (`story_factory` / `masterclass` / `warroom` / `asmr_studio` / `live_tools`).
+- Legacy directories deleted (content remains recoverable from git history): `archive/cloud_legacy/`, `pipeline/channels_legacy/` (prettypet/psychology/tanktail), `tools/video/youtube_factory/archive/` (16 superseded scripts). No code referenced any of them.

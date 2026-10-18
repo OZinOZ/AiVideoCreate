@@ -130,7 +130,6 @@ Note: `pipeline/` uses **flat imports** (no package structure; direct `import co
 
 - Colab protocol has a single `task_file.txt` → parallelism is fixed at 1; libx264 there does not support overlay/watermarks
 - The github backend requires `video_render.yml` in an external repo (`GITHUB_INTERFACE_CONFIG["REPO_OWNER/NAME"]`)
-- `channels_legacy/*` is based on the old base_config; fields are not fully aligned with the new runner
 - Many tools/ scripts contain author-machine drive-letter paths (`I:\AiVideos`, etc.) and need per-machine adjustment
 
 ## 7. Extension Points

@@ -12,3 +12,5 @@ token.json
 client_secret*.json
 *service_account*.json
 stop.txt
+.pytest_cache/
+.ruff_cache/
